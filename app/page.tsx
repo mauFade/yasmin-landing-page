@@ -250,7 +250,7 @@ function Hero() {
         <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] max-w-125 max-h-125 rounded-full bg-(--color-canvas) opacity-60 blur-[60px]" />
       </div>
 
-      <div className="relative max-w-6xl mx-auto px-6 py-20 lg:py-28">
+      <div className="relative max-w-7xl mx-auto px-6 py-20 lg:py-28">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="flex flex-col gap-6 order-2 lg:order-1">
             <div className="animate-fade-up">
@@ -463,7 +463,7 @@ function Hero() {
 function About() {
   return (
     <section id="sobre" className="bg-(--color-canvas) py-28 px-6">
-      <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+      <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
         <Reveal direction="left" className="relative">
           <div className="relative max-w-115">
             <div className="overflow-hidden rounded-3xl aspect-4/5">
@@ -608,7 +608,7 @@ const pillars = [
 function Specialties() {
   return (
     <section id="especialidades" className="bg-(--color-alabaster) py-28 px-6">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
           <div className="flex flex-col gap-4">
             <Reveal>
@@ -751,7 +751,7 @@ const steps = [
 function Methodology() {
   return (
     <section id="metodologia" className="bg-(--color-canvas) py-28 px-6">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="max-w-2xl mb-20">
           <Reveal>
             <SectionLabel>Como Funciona</SectionLabel>
@@ -868,7 +868,7 @@ function Services() {
 
   return (
     <section className="bg-(--color-canvas) py-20 px-6">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-4">
           {items.map((s) => (
             <Reveal key={s.title}>
@@ -995,7 +995,7 @@ function Footer() {
       id="contato"
       className="bg-[#152419] border-t border-[#2E5238]/50 px-6 pt-12 pb-8"
     >
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
         <div className="flex flex-col gap-3">
           <span className="font-(--font-display) text-[1.2rem] text-white/80">
             Yasmin{" "}
