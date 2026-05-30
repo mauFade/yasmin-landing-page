@@ -1,106 +1,132 @@
 "use client";
 
-import { useState, useEffect, useRef, ReactNode } from "react";
+import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import Image from "next/image";
 import {
-  HouseIcon as House,
-  MonitorIcon as Monitor,
-  HeartbeatIcon as Heartbeat,
-  FlowerLotusIcon as FlowerLotus,
-  ClipboardTextIcon as ClipboardText,
-  CarrotIcon as Carrot,
-  FileTextIcon as FileText,
-  CalendarCheckIcon as CalendarCheck,
-  InstagramLogoIcon as InstagramLogo,
-  ChatCircleDotsIcon as ChatCircleDots,
-  MapPinIcon as MapPin,
-  ArrowRightIcon as ArrowRight,
-  ListIcon as List,
-  XIcon as X,
-  NumberCircleOneIcon as NumberCircleOne,
-  NumberCircleTwoIcon as NumberCircleTwo,
-  NumberCircleThreeIcon as NumberCircleThree,
-  NumberCircleFourIcon as NumberCircleFour,
-  MedalIcon as Medal,
-  LeafIcon as Leaf,
-  CheckCircleIcon as CheckCircle,
-  QuotesIcon as Quotes,
+  HouseIcon,
+  MonitorIcon,
+  HeartbeatIcon,
+  FlowerLotusIcon,
+  ClipboardTextIcon,
+  CarrotIcon,
+  CalendarCheckIcon,
+  InstagramLogoIcon,
+  ChatCircleDotsIcon,
+  MapPinIcon,
+  ArrowRightIcon,
+  ListIcon,
+  XIcon,
+  NumberCircleOneIcon,
+  NumberCircleTwoIcon,
+  NumberCircleThreeIcon,
+  NumberCircleFourIcon,
+  MedalIcon,
+  LeafIcon,
+  CheckCircleIcon,
+  QuotesIcon,
+  ArrowUpRightIcon,
+  SparkleIcon,
+  StarIcon,
 } from "@phosphor-icons/react";
+import { cn } from "@/lib/utils";
 
-const WA_LINK = "https://wa.me/5568992025316";
-const IG_LINK = "https://www.instagram.com/nutriyasminveras/";
+const WA = "https://wa.me/5568992025316";
+const IG = "https://www.instagram.com/nutriyasminveras/";
 
-/* ── Scroll-reveal wrapper ── */
-function Reveal({
-  children,
-  className = "",
-  direction = "up",
-  delay = 0,
-}: {
-  children: ReactNode;
-  className?: string;
-  direction?: "up" | "left" | "right";
-  delay?: number;
-}) {
+function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.classList.add("revealed");
-          observer.disconnect();
+    const obs = new IntersectionObserver(
+      ([e]) => {
+        if (e.isIntersecting) {
+          el.classList.add("visible");
+          obs.disconnect();
         }
       },
-      { threshold: 0.12 }
+      { threshold: 0.1 }
     );
-    observer.observe(el);
-    return () => observer.disconnect();
+    obs.observe(el);
+    return () => obs.disconnect();
   }, []);
 
-  const baseClass =
-    direction === "left"
-      ? "scroll-reveal-left"
-      : direction === "right"
-      ? "scroll-reveal-right"
-      : "scroll-reveal";
+  return ref;
+}
 
-  const delayClass =
-    delay === 100
-      ? "delay-100"
-      : delay === 200
-      ? "delay-200"
-      : delay === 300
-      ? "delay-300"
-      : delay === 400
-      ? "delay-400"
-      : delay === 500
-      ? "delay-500"
-      : "";
-
+function Reveal({
+  children,
+  className,
+  direction = "up",
+  delay,
+}: {
+  children: ReactNode;
+  className?: string;
+  direction?: "up" | "left" | "right";
+  delay?: 100 | 150 | 200 | 250 | 300 | 400 | 500;
+}) {
+  const ref = useReveal();
   return (
-    <div ref={ref} className={`${baseClass} ${delayClass} ${className}`}>
+    <div
+      ref={ref}
+      className={cn(
+        direction === "up" && "reveal",
+        direction === "left" && "reveal-left",
+        direction === "right" && "reveal-right",
+        delay && `delay-${delay}`,
+        className
+      )}
+    >
       {children}
     </div>
   );
 }
 
-/* ── Header ── */
-function Header() {
+function Label({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1.5 text-[11px] font-[500] tracking-[0.14em] uppercase",
+        "text-[var(--color-sage)]",
+        className
+      )}
+    >
+      <LeafIcon size={11} weight="fill" />
+      {children}
+    </span>
+  );
+}
+
+function Pill({ children, className }: { children: ReactNode; className?: string }) {
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 px-3 py-1 rounded-full text-[11px] font-[500] tracking-wide",
+        "bg-[var(--color-sage-muted)] text-[var(--color-sage)]",
+        className
+      )}
+    >
+      {children}
+    </span>
+  );
+}
+
+function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const h = () => setScrolled(window.scrollY > 32);
+    window.addEventListener("scroll", h, { passive: true });
+    return () => window.removeEventListener("scroll", h);
   }, []);
+
+  const close = useCallback(() => setOpen(false), []);
 
   const links = [
     { href: "#sobre", label: "Sobre" },
-    { href: "#servicos", label: "Serviços" },
+    { href: "#especialidades", label: "Especialidades" },
     { href: "#metodologia", label: "Metodologia" },
     { href: "#contato", label: "Contato" },
   ];
@@ -108,938 +134,750 @@ function Header() {
   return (
     <>
       <header
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 100,
-          transition: "background 0.4s ease, box-shadow 0.4s ease",
-          background: scrolled ? "rgba(248,245,239,0.96)" : "transparent",
-          boxShadow: scrolled ? "0 1px 24px rgba(0,0,0,0.07)" : "none",
-          backdropFilter: scrolled ? "blur(10px)" : "none",
-        }}
+        className={cn(
+          "fixed top-0 inset-x-0 z-50 transition-all duration-500 ease-out",
+          scrolled
+            ? "bg-white/80 backdrop-blur-md border-b border-[var(--color-border)] shadow-[0_1px_24px_rgba(0,0,0,0.06)]"
+            : "bg-transparent"
+        )}
       >
-        <div
-          style={{
-            maxWidth: 1200,
-            margin: "0 auto",
-            padding: "0 2rem",
-            height: 72,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          {/* Logo */}
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <a
             href="#"
-            style={{
-              fontFamily: "var(--font-cormorant), serif",
-              fontSize: "1.5rem",
-              fontWeight: 500,
-              color: "var(--text-dark)",
-              textDecoration: "none",
-              letterSpacing: "0.04em",
-            }}
+            className="font-[var(--font-display)] text-[1.35rem] font-[400] tracking-tight text-[var(--color-charcoal)]"
           >
-            Yasmin <span style={{ color: "var(--sage-dark)", fontStyle: "italic" }}>Veras</span>
+            Yasmin{" "}
+            <em className="not-italic text-[var(--color-sage)] font-[300]">Veras</em>
           </a>
 
-          {/* Desktop nav */}
-          <nav
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "2.5rem",
-            }}
-            className="hidden md:flex"
-          >
+          <nav className="hidden md:flex items-center gap-8">
             {links.map((l) => (
               <a
                 key={l.href}
                 href={l.href}
-                style={{
-                  fontFamily: "var(--font-dm-sans), sans-serif",
-                  fontSize: "0.82rem",
-                  fontWeight: 400,
-                  color: "var(--text-mid)",
-                  textDecoration: "none",
-                  letterSpacing: "0.1em",
-                  textTransform: "uppercase",
-                  transition: "color 0.25s",
-                }}
-                onMouseEnter={(e) =>
-                  ((e.target as HTMLElement).style.color = "var(--sage-dark)")
-                }
-                onMouseLeave={(e) =>
-                  ((e.target as HTMLElement).style.color = "var(--text-mid)")
-                }
+                className={cn(
+                  "text-[13px] font-[400] tracking-wide text-[var(--color-slate-mid)]",
+                  "transition-colors duration-300 hover:text-[var(--color-charcoal)]"
+                )}
+              >
+                {l.label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="hidden md:flex items-center gap-3">
+            <a
+              href={IG}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                "w-8 h-8 rounded-full flex items-center justify-center",
+                "border border-[var(--color-border)] text-[var(--color-slate-soft)]",
+                "transition-all duration-300 hover:border-[var(--color-sage-border)] hover:text-[var(--color-sage)]"
+              )}
+            >
+              <InstagramLogoIcon size={15} />
+            </a>
+            <a
+              href={WA}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                "inline-flex items-center gap-2 px-4 py-2 rounded-full text-[13px] font-[500] tracking-wide",
+                "bg-[var(--color-charcoal)] text-white",
+                "transition-all duration-300 hover:bg-[var(--color-sage)] hover:-translate-y-px",
+                "animate-pulse-glow"
+              )}
+            >
+              <ChatCircleDotsIcon size={14} weight="fill" />
+              Agendar Consulta
+            </a>
+          </div>
+
+          <button
+            onClick={() => setOpen(true)}
+            className={cn(
+              "md:hidden w-9 h-9 rounded-lg flex items-center justify-center",
+              "border border-[var(--color-border)] text-[var(--color-slate-mid)]",
+              "transition-colors hover:text-[var(--color-charcoal)]"
+            )}
+            aria-label="Abrir menu"
+          >
+            <ListIcon size={18} />
+          </button>
+        </div>
+      </header>
+
+      {open && (
+        <div className="fixed inset-0 z-[200] bg-[var(--color-alabaster)] animate-fade-in flex flex-col">
+          <div className="flex items-center justify-between px-6 h-16 border-b border-[var(--color-border)]">
+            <span className="font-[var(--font-display)] text-[1.35rem] text-[var(--color-charcoal)]">
+              Yasmin <em className="not-italic text-[var(--color-sage)] font-[300]">Veras</em>
+            </span>
+            <button
+              onClick={close}
+              className="w-9 h-9 rounded-lg flex items-center justify-center border border-[var(--color-border)]"
+              aria-label="Fechar menu"
+            >
+              <XIcon size={17} />
+            </button>
+          </div>
+          <nav className="flex flex-col items-center justify-center gap-8 flex-1">
+            {links.map((l) => (
+              <a
+                key={l.href}
+                href={l.href}
+                onClick={close}
+                className="font-[var(--font-display)] text-3xl font-[300] text-[var(--color-charcoal)] hover:text-[var(--color-sage)] transition-colors"
               >
                 {l.label}
               </a>
             ))}
             <a
-              href={WA_LINK}
+              href={WA}
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "0.82rem",
-                fontWeight: 500,
-                background: "var(--sage-dark)",
-                color: "#fff",
-                padding: "0.6rem 1.5rem",
-                borderRadius: "50px",
-                textDecoration: "none",
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                transition: "background 0.25s, transform 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "var(--sage)";
-                (e.currentTarget as HTMLElement).style.transform = "translateY(-1px)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "var(--sage-dark)";
-                (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-              }}
+              onClick={close}
+              className={cn(
+                "mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-full text-[13px] font-[500]",
+                "bg-[var(--color-charcoal)] text-white"
+              )}
             >
-              Agende sua Consulta
+              <ChatCircleDotsIcon size={15} weight="fill" />
+              Agendar Consulta
             </a>
           </nav>
-
-          {/* Mobile hamburger */}
-          <button
-            className="md:hidden"
-            onClick={() => setOpen(true)}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: "var(--text-dark)",
-              padding: "0.5rem",
-            }}
-            aria-label="Abrir menu"
-          >
-            <List size={26} />
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile overlay */}
-      {open && (
-        <div
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 200,
-            background: "var(--cream)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "2.5rem",
-            animation: "fadeIn 0.25s ease",
-          }}
-        >
-          <button
-            onClick={() => setOpen(false)}
-            style={{
-              position: "absolute",
-              top: "1.5rem",
-              right: "2rem",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              color: "var(--text-dark)",
-            }}
-            aria-label="Fechar menu"
-          >
-            <X size={28} />
-          </button>
-
-          <a
-            href="#"
-            style={{
-              fontFamily: "var(--font-cormorant), serif",
-              fontSize: "1.6rem",
-              fontWeight: 500,
-              color: "var(--text-dark)",
-              textDecoration: "none",
-              marginBottom: "1rem",
-            }}
-          >
-            Yasmin <span style={{ color: "var(--sage-dark)", fontStyle: "italic" }}>Veras</span>
-          </a>
-
-          {links.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              onClick={() => setOpen(false)}
-              style={{
-                fontFamily: "var(--font-cormorant), serif",
-                fontSize: "1.8rem",
-                fontWeight: 400,
-                color: "var(--text-dark)",
-                textDecoration: "none",
-                letterSpacing: "0.04em",
-              }}
-            >
-              {l.label}
-            </a>
-          ))}
-
-          <a
-            href={WA_LINK}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
-            style={{
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontSize: "0.85rem",
-              fontWeight: 500,
-              background: "var(--sage-dark)",
-              color: "#fff",
-              padding: "0.85rem 2.4rem",
-              borderRadius: "50px",
-              textDecoration: "none",
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-              marginTop: "1rem",
-            }}
-          >
-            Agendar Consulta
-          </a>
         </div>
       )}
     </>
   );
 }
 
-/* ── Hero ── */
 function Hero() {
   return (
-    <section
-      id="hero"
-      style={{
-        minHeight: "100vh",
-        background: "var(--cream)",
-        display: "flex",
-        alignItems: "center",
-        paddingTop: "72px",
-        overflow: "hidden",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          padding: "4rem 2rem",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "4rem",
-          alignItems: "center",
-          width: "100%",
-        }}
-        className="hero-grid"
-      >
-        {/* Text */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          <div
-            className="animate-fade-in"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              background: "var(--sage-xlight)",
-              color: "var(--sage-dark)",
-              padding: "0.4rem 1rem",
-              borderRadius: "50px",
-              width: "fit-content",
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontSize: "0.75rem",
-              fontWeight: 500,
-              letterSpacing: "0.12em",
-              textTransform: "uppercase",
-            }}
-          >
-            <Leaf size={14} weight="fill" />
-            Nutricionista Clínica · CRN7 18989
-          </div>
+    <section className="relative min-h-screen bg-[var(--color-alabaster)] pt-16 overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none select-none overflow-hidden">
+        <div className="absolute top-1/4 right-0 w-[55vw] h-[55vw] max-w-[700px] max-h-[700px] rounded-full bg-[var(--color-sage-muted)] opacity-40 blur-[80px]" />
+        <div className="absolute bottom-0 left-0 w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-[var(--color-canvas)] opacity-60 blur-[60px]" />
+      </div>
 
-          <h1
-            className="animate-fade-in-up"
-            style={{
-              fontFamily: "var(--font-cormorant), serif",
-              fontSize: "clamp(2.8rem, 5vw, 4.2rem)",
-              fontWeight: 400,
-              lineHeight: 1.1,
-              color: "var(--text-dark)",
-              animationDelay: "0.1s",
-            }}
-          >
-            Transforme sua{" "}
-            <em style={{ color: "var(--sage-dark)", fontStyle: "italic" }}>
-              relação
-            </em>{" "}
-            <br />
-            com a comida
-          </h1>
-
-          <p
-            className="animate-fade-in-up"
-            style={{
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontSize: "1.05rem",
-              lineHeight: 1.75,
-              color: "var(--text-mid)",
-              maxWidth: 480,
-              fontWeight: 300,
-              animationDelay: "0.2s",
-            }}
-          >
-            Atendimento nutricional individualizado, fundamentado em evidências
-            científicas, com escuta qualificada e acolhimento da sua trajetória
-            e hábitos alimentares. Consultas online e presencial.
-          </p>
-
-          <div
-            className="animate-fade-in-up"
-            style={{
-              display: "flex",
-              gap: "1rem",
-              flexWrap: "wrap",
-              animationDelay: "0.3s",
-            }}
-          >
-            <a
-              href={WA_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="animate-pulse-ring"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                background: "var(--sage-dark)",
-                color: "#fff",
-                padding: "0.9rem 2rem",
-                borderRadius: "50px",
-                textDecoration: "none",
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "0.88rem",
-                fontWeight: 500,
-                letterSpacing: "0.06em",
-                transition: "background 0.25s, transform 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "var(--sage)";
-                (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "var(--sage-dark)";
-                (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-              }}
-            >
-              <ChatCircleDots size={18} weight="fill" />
-              Agendar pelo WhatsApp
-            </a>
-
-            <a
-              href="#sobre"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.4rem",
-                color: "var(--text-mid)",
-                textDecoration: "none",
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "0.88rem",
-                fontWeight: 400,
-                padding: "0.9rem 1.5rem",
-                border: "1px solid var(--cream-dark)",
-                borderRadius: "50px",
-                transition: "border-color 0.25s, color 0.25s",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--sage)";
-                (e.currentTarget as HTMLElement).style.color = "var(--sage-dark)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--cream-dark)";
-                (e.currentTarget as HTMLElement).style.color = "var(--text-mid)";
-              }}
-            >
-              Conheça meu trabalho <ArrowRight size={15} />
-            </a>
-          </div>
-
-          {/* Trust badges */}
-          <div
-            className="animate-fade-in"
-            style={{
-              display: "flex",
-              gap: "1.5rem",
-              flexWrap: "wrap",
-              paddingTop: "0.5rem",
-              animationDelay: "0.5s",
-            }}
-          >
-            {[
-              "Atendimento Humanizado",
-              "Online & Presencial",
-              "Baseado em Evidências",
-            ].map((badge) => (
-              <span
-                key={badge}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "0.4rem",
-                  fontFamily: "var(--font-dm-sans), sans-serif",
-                  fontSize: "0.75rem",
-                  color: "var(--text-light)",
-                  letterSpacing: "0.04em",
-                }}
-              >
-                <CheckCircle size={13} weight="fill" color="var(--sage)" />
-                {badge}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Portrait image */}
-        <div
-          className="animate-fade-in hero-image-wrap"
-          style={{
-            position: "relative",
-            display: "flex",
-            justifyContent: "center",
-            animationDelay: "0.25s",
-          }}
-        >
-          {/* Decorative blob behind */}
-          <div
-            style={{
-              position: "absolute",
-              inset: "-10%",
-              background: "var(--sage-xlight)",
-              borderRadius: "60% 40% 50% 50% / 50% 60% 40% 50%",
-              zIndex: 0,
-            }}
-          />
-          <div
-            style={{
-              position: "relative",
-              zIndex: 1,
-              width: "100%",
-              maxWidth: 440,
-              borderRadius: "30% 70% 70% 30% / 30% 30% 70% 70%",
-              overflow: "hidden",
-              aspectRatio: "4/5",
-            }}
-          >
-            <Image
-              src="/yasmin-photo-1.jpg"
-              alt="Yasmin Veras — Nutricionista"
-              fill
-              style={{ objectFit: "cover", objectPosition: "center top" }}
-              priority
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-          </div>
-
-          {/* Floating credential card */}
-          <div
-            style={{
-              position: "absolute",
-              bottom: "8%",
-              left: "-4%",
-              background: "#fff",
-              borderRadius: 16,
-              padding: "1rem 1.25rem",
-              boxShadow: "0 8px 32px rgba(0,0,0,0.1)",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.75rem",
-              zIndex: 2,
-            }}
-          >
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: "50%",
-                background: "var(--sage-xlight)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <Medal size={20} weight="fill" color="var(--sage-dark)" />
+      <div className="relative max-w-6xl mx-auto px-6 py-20 lg:py-28">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div className="flex flex-col gap-6 order-2 lg:order-1">
+            <div className="animate-fade-up">
+              <Pill>
+                <StarIcon size={10} weight="fill" />
+                Nutricionista Clínica · CRN7 18989
+              </Pill>
             </div>
-            <div>
-              <div
-                style={{
-                  fontFamily: "var(--font-dm-sans), sans-serif",
-                  fontSize: "0.75rem",
-                  fontWeight: 500,
-                  color: "var(--text-dark)",
-                }}
+
+            <h1
+              className={cn(
+                "animate-fade-up delay-100",
+                "font-[var(--font-display)] font-[400] leading-[1.05] tracking-tight",
+                "text-[clamp(3rem,6vw,5.5rem)] text-[var(--color-charcoal)]"
+              )}
+            >
+              Nutrição que{" "}
+              <em className="italic text-[var(--color-sage)]">transforma</em>
+              <br />
+              de dentro
+              <br />
+              para fora
+            </h1>
+
+            <p
+              className={cn(
+                "animate-fade-up delay-200",
+                "font-[var(--font-body)] font-[300] text-[1.05rem] leading-[1.75]",
+                "text-[var(--color-slate-mid)] max-w-[480px]"
+              )}
+            >
+              Atendimento individualizado que une ciência, escuta ativa e
+              acolhimento. Uma abordagem que respeita sua história e transforma
+              sua relação com os alimentos de forma sustentável.
+            </p>
+
+            <div className="animate-fade-up delay-300 flex flex-wrap gap-3">
+              <a
+                href={WA}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "inline-flex items-center gap-2 px-6 py-3.5 rounded-full",
+                  "text-[13px] font-[500] tracking-wide text-white",
+                  "bg-[var(--color-charcoal)]",
+                  "transition-all duration-500 ease-out",
+                  "hover:bg-[var(--color-sage)] hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[var(--color-sage)]/20",
+                  "animate-pulse-glow"
+                )}
               >
-                CRN7 18989
-              </div>
-              <div
-                style={{
-                  fontFamily: "var(--font-dm-sans), sans-serif",
-                  fontSize: "0.68rem",
-                  color: "var(--text-light)",
-                }}
+                <ChatCircleDotsIcon size={16} weight="fill" />
+                Agendar pelo WhatsApp
+              </a>
+              <a
+                href="#sobre"
+                className={cn(
+                  "inline-flex items-center gap-2 px-6 py-3.5 rounded-full",
+                  "text-[13px] font-[400] tracking-wide text-[var(--color-slate-mid)]",
+                  "border border-[var(--color-border)]",
+                  "transition-all duration-300 hover:border-[var(--color-sage-border)] hover:text-[var(--color-charcoal)]"
+                )}
               >
-                Nutricionista Registrada
-              </div>
+                Conheça meu trabalho
+                <ArrowRightIcon size={14} />
+              </a>
+            </div>
+
+            <div className="animate-fade-up delay-400 flex items-center gap-6 pt-2">
+              {["Sem dietas restritivas", "Online & Presencial", "Evidências científicas"].map(
+                (t) => (
+                  <span
+                    key={t}
+                    className="flex items-center gap-1.5 text-[12px] text-[var(--color-slate-soft)]"
+                  >
+                    <CheckCircleIcon size={12} weight="fill" color="var(--color-sage)" />
+                    {t}
+                  </span>
+                )
+              )}
             </div>
           </div>
 
-          {/* Floating tag */}
-          <div
-            style={{
-              position: "absolute",
-              top: "12%",
-              right: "-2%",
-              background: "var(--sage-dark)",
-              color: "#fff",
-              borderRadius: 12,
-              padding: "0.6rem 1rem",
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontSize: "0.72rem",
-              fontWeight: 500,
-              letterSpacing: "0.06em",
-              zIndex: 2,
-            }}
-          >
-            UFAC · Pós-Graduanda
+          <div className="relative order-1 lg:order-2 flex justify-center lg:justify-end">
+            <div className="relative w-full max-w-[420px]">
+              <div
+                className={cn(
+                  "relative overflow-hidden",
+                  "rounded-[40%_60%_60%_40%/40%_40%_60%_60%]",
+                  "aspect-[4/5] animate-fade-in delay-200"
+                )}
+              >
+                <Image
+                  src="/yasmin-photo-1.jpg"
+                  alt="Yasmin Veras — Nutricionista"
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 45vw"
+                  className="object-cover object-top"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-sage)]/10 to-transparent" />
+              </div>
+
+              <div
+                className={cn(
+                  "absolute -bottom-4 -left-4 lg:-left-10",
+                  "bg-white rounded-2xl px-4 py-3.5 shadow-xl shadow-black/8",
+                  "border border-[var(--color-border)]",
+                  "flex items-center gap-3 animate-fade-up delay-400"
+                )}
+              >
+                <div className="w-9 h-9 rounded-full bg-[var(--color-sage-muted)] flex items-center justify-center">
+                  <MedalIcon size={18} weight="fill" color="var(--color-sage)" />
+                </div>
+                <div>
+                  <p className="text-[12px] font-[500] text-[var(--color-charcoal)] leading-none">
+                    CRN7 18989
+                  </p>
+                  <p className="text-[11px] text-[var(--color-slate-soft)] mt-0.5">
+                    Nutricionista Registrada
+                  </p>
+                </div>
+              </div>
+
+              <div
+                className={cn(
+                  "absolute -top-2 -right-2 lg:right-0",
+                  "bg-[var(--color-sage)] text-white rounded-2xl px-3.5 py-2.5",
+                  "text-[11px] font-[500] tracking-wide",
+                  "animate-fade-up delay-500 shadow-lg shadow-[var(--color-sage)]/25"
+                )}
+              >
+                UFAC · Pós-Graduanda
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <style>{`
-        @media (max-width: 768px) {
-          .hero-grid {
-            grid-template-columns: 1fr !important;
-            gap: 2.5rem !important;
-            padding: 3rem 1.5rem !important;
-          }
-          .hero-image-wrap {
-            order: -1;
-            max-height: 380px;
-          }
-        }
-      `}</style>
+      <div className="relative max-w-6xl mx-auto px-6 pb-16">
+        <div
+          className={cn(
+            "grid grid-cols-2 md:grid-cols-4 gap-px",
+            "border border-[var(--color-border)] rounded-2xl overflow-hidden",
+            "bg-[var(--color-border)]",
+            "animate-fade-up delay-500"
+          )}
+        >
+          {[
+            { value: "100%", label: "Individualizado" },
+            { value: "UFAC", label: "Universidade Federal do Acre" },
+            { value: "Online", label: "Todo o Brasil" },
+            { value: "2+", label: "Especializações" },
+          ].map(({ value, label }) => (
+            <div
+              key={label}
+              className="bg-[var(--color-alabaster)] py-6 px-5 flex flex-col gap-1"
+            >
+              <span className="font-[var(--font-display)] text-2xl font-[500] text-[var(--color-charcoal)]">
+                {value}
+              </span>
+              <span className="text-[12px] text-[var(--color-slate-soft)] tracking-wide">
+                {label}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
 
-/* ── About ── */
 function About() {
-  const credentials = [
-    "Graduada em Nutrição pela Universidade Federal do Acre (UFAC)",
-    "Pós-Graduação em Nutrição na Oncologia",
-    "Especializada em Saúde da Mulher",
-    "Atendimento online para todo o Brasil e presencial",
-  ];
-
   return (
-    <section
-      id="sobre"
-      style={{
-        background: "var(--cream-dark)",
-        padding: "6rem 2rem",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "5rem",
-          alignItems: "center",
-        }}
-        className="about-grid"
-      >
-        {/* Image */}
-        <Reveal direction="left">
-          <div style={{ position: "relative" }}>
-            <div
-              style={{
-                borderRadius: "24px",
-                overflow: "hidden",
-                aspectRatio: "4/5",
-                maxWidth: 420,
-              }}
-            >
+    <section id="sobre" className="bg-[var(--color-canvas)] py-28 px-6">
+      <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+        <Reveal direction="left" className="relative">
+          <div className="relative max-w-[460px]">
+            <div className="overflow-hidden rounded-3xl aspect-[4/5]">
               <Image
                 src="/yasmin-photo-2.jpg"
-                alt="Yasmin Veras sorrindo"
-                width={420}
-                height={525}
-                style={{ objectFit: "cover", objectPosition: "center top", width: "100%", height: "100%" }}
+                alt="Yasmin Veras"
+                width={460}
+                height={575}
+                className="object-cover object-top w-full h-full transition-transform duration-700 hover:scale-105"
               />
             </div>
-            {/* Decorative border */}
             <div
-              style={{
-                position: "absolute",
-                top: 20,
-                left: 20,
-                right: -20,
-                bottom: -20,
-                border: "2px solid var(--sage-light)",
-                borderRadius: 24,
-                zIndex: -1,
-              }}
+              className={cn(
+                "absolute top-5 left-5 right-[-12px] bottom-[-12px]",
+                "border border-[var(--color-sage-border)] rounded-3xl -z-10"
+              )}
             />
+            <div
+              className={cn(
+                "absolute bottom-6 right-6",
+                "bg-white/90 backdrop-blur-sm rounded-2xl p-4",
+                "border border-[var(--color-border)] shadow-lg shadow-black/6"
+              )}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <SparkleIcon size={14} color="var(--color-sage)" weight="fill" />
+                <span className="text-[11px] font-[500] text-[var(--color-sage)] tracking-wide uppercase">
+                  Formação
+                </span>
+              </div>
+              <p className="text-[12px] text-[var(--color-slate-mid)] leading-relaxed">
+                Graduada em Nutrição pela
+                <br />
+                <strong className="font-[500] text-[var(--color-charcoal)]">
+                  Universidade Federal do Acre
+                </strong>
+              </p>
+            </div>
           </div>
         </Reveal>
 
-        {/* Text */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1.75rem" }}>
+        <div className="flex flex-col gap-7">
           <Reveal>
-            <p
-              style={{
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "0.75rem",
-                fontWeight: 500,
-                color: "var(--sage-dark)",
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-              }}
-            >
-              Sobre Mim
-            </p>
+            <Label>Sobre Mim</Label>
           </Reveal>
-
           <Reveal delay={100}>
             <h2
-              style={{
-                fontFamily: "var(--font-cormorant), serif",
-                fontSize: "clamp(2.2rem, 3.5vw, 3rem)",
-                fontWeight: 400,
-                lineHeight: 1.15,
-                color: "var(--text-dark)",
-              }}
+              className={cn(
+                "font-[var(--font-display)] font-[400] leading-[1.1] tracking-tight",
+                "text-[clamp(2.2rem,4vw,3.4rem)] text-[var(--color-charcoal)]"
+              )}
             >
               Cuidar de você é{" "}
-              <em style={{ color: "var(--sage-dark)", fontStyle: "italic" }}>
-                minha vocação
-              </em>
+              <em className="italic text-[var(--color-sage)]">minha vocação</em>
             </h2>
           </Reveal>
-
           <Reveal delay={200}>
-            <p
-              style={{
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "1rem",
-                lineHeight: 1.8,
-                color: "var(--text-mid)",
-                fontWeight: 300,
-              }}
-            >
+            <p className="font-[var(--font-body)] font-[300] text-[1rem] leading-[1.8] text-[var(--color-slate-mid)]">
               Sou Yasmin Veras, nutricionista formada pela Universidade Federal
               do Acre e Pós-Graduanda em Nutrição Oncológica e Nutrição Aplicada
-              à Saúde da Mulher. Meu trabalho é ajudar você a passar pelas
+              à Saúde da Mulher. Meu trabalho é ajudar você a navegar pelas
               diferentes fases da vida de maneira leve, responsável e
               sustentável.
             </p>
           </Reveal>
-
           <Reveal delay={250}>
-            <p
-              style={{
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "1rem",
-                lineHeight: 1.8,
-                color: "var(--text-mid)",
-                fontWeight: 300,
-              }}
-            >
+            <p className="font-[var(--font-body)] font-[300] text-[1rem] leading-[1.8] text-[var(--color-slate-mid)]">
               Não acredito em dietas restritivas ou soluções milagrosas. Cada
-              paciente é único — realizo atendimento 100% individualizado,
-              baseado na sua rotina, intolerâncias e objetivos. Atendo de forma
-              humanizada, combinando evidências científicas com escuta ativa e
-              respeito à sua história.
+              pessoa carrega uma história única — e é a partir dessa história que
+              construímos juntos um caminho alimentar que faz sentido para a sua
+              vida real.
             </p>
           </Reveal>
-
           <Reveal delay={300}>
-            <ul
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.8rem",
-                listStyle: "none",
-                padding: 0,
-                margin: 0,
-              }}
-            >
-              {credentials.map((c) => (
+            <ul className="flex flex-col gap-3">
+              {[
+                "Graduada em Nutrição pela Universidade Federal do Acre (UFAC)",
+                "Pós-Graduação em Nutrição Oncológica",
+                "Especializada em Saúde da Mulher",
+                "Atendimento online para todo o Brasil e presencial",
+              ].map((c) => (
                 <li
                   key={c}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "0.6rem",
-                    fontFamily: "var(--font-dm-sans), sans-serif",
-                    fontSize: "0.9rem",
-                    color: "var(--text-mid)",
-                    fontWeight: 400,
-                  }}
+                  className="flex items-start gap-2.5 text-[0.9rem] font-[300] text-[var(--color-slate-mid)]"
                 >
-                  <CheckCircle
-                    size={17}
+                  <CheckCircleIcon
+                    size={16}
                     weight="fill"
-                    color="var(--sage)"
-                    style={{ flexShrink: 0, marginTop: 2 }}
+                    color="var(--color-sage)"
+                    className="mt-0.5 shrink-0"
                   />
                   {c}
                 </li>
               ))}
             </ul>
           </Reveal>
-
           <Reveal delay={400}>
             <a
-              href={WA_LINK}
+              href={WA}
               target="_blank"
               rel="noopener noreferrer"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                background: "var(--sage-dark)",
-                color: "#fff",
-                padding: "0.85rem 2rem",
-                borderRadius: "50px",
-                textDecoration: "none",
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "0.85rem",
-                fontWeight: 500,
-                letterSpacing: "0.06em",
-                width: "fit-content",
-                transition: "background 0.25s, transform 0.2s",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "var(--sage)";
-                (e.currentTarget as HTMLElement).style.transform = "translateY(-2px)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.background = "var(--sage-dark)";
-                (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-              }}
+              className={cn(
+                "inline-flex items-center gap-2 w-fit px-6 py-3 rounded-full",
+                "text-[13px] font-[500] tracking-wide text-white",
+                "bg-[var(--color-charcoal)]",
+                "transition-all duration-300 hover:bg-[var(--color-sage)] hover:-translate-y-px"
+              )}
             >
-              Agendar consulta <ArrowRight size={15} />
+              Agendar uma conversa
+              <ArrowRightIcon size={14} />
             </a>
           </Reveal>
         </div>
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .about-grid {
-            grid-template-columns: 1fr !important;
-            gap: 3rem !important;
-          }
-        }
-      `}</style>
     </section>
   );
 }
 
-/* ── Services ── */
-const services = [
+const pillars = [
   {
-    icon: <House size={28} weight="duotone" color="var(--sage-dark)" />,
-    title: "Consulta Presencial",
-    desc: "Consulta com duração aproximada de 60 minutos, incluindo avaliação corporal detalhada por pregas cutâneas, interpretação de exames laboratoriais, investigação clínica completa e análise metabólica personalizada.",
-    tag: "Presencial",
+    icon: <HeartbeatIcon size={26} weight="duotone" />,
+    tag: "Clínica",
+    title: "Nutrição Clínica",
+    desc: "Análise completa de exames, avaliação metabólica e tratamento nutricional de condições como SOP, endometriose, distúrbios hormonais e saúde oncológica. Cuidado rigoroso baseado em evidências.",
+    accent: true,
   },
   {
-    icon: <Monitor size={28} weight="duotone" color="var(--sage-dark)" />,
-    title: "Consulta Online",
-    desc: "Mesma entrega da consulta presencial — avaliação física via app, análise de exames, anamnese e mapeamento metabólico — com a flexibilidade de horário que você precisa, de qualquer lugar do Brasil.",
-    tag: "Online",
+    icon: <FlowerLotusIcon size={26} weight="duotone" />,
+    tag: "Estética",
+    title: "Estética & Emagrecimento",
+    desc: "Composição corporal e emagrecimento sustentável — sem dietas restritivas, sem privação. Um plano que respeita seu corpo e se adapta ao seu estilo de vida.",
+    accent: false,
   },
   {
-    icon: <Heartbeat size={28} weight="duotone" color="var(--sage-dark)" />,
-    title: "Nutrição Oncológica",
-    desc: "Planejamento alimentar focado em manejo de sintomas, prevenção de desnutrição e preparo para quimio e radioterapia. Suporte especializado para paciente e familiares em cada etapa do tratamento.",
-    tag: "Especialidade",
+    icon: <CarrotIcon size={26} weight="duotone" />,
+    tag: "Comportamental",
+    title: "Reeducação Alimentar",
+    desc: "Transforme sua relação com os alimentos de forma gradual e prazerosa. Um aprendizado que dura a vida toda, sem regras rígidas ou proibições que não fazem sentido.",
+    accent: false,
   },
   {
-    icon: <FlowerLotus size={28} weight="duotone" color="var(--sage-dark)" />,
-    title: "Saúde da Mulher",
-    desc: "Manejo nutricional de SOP e endometriose, menopausa, saúde óssea e questões gastroentéricas na saúde feminina. Cuidado individualizado para cada fase da vida da mulher.",
-    tag: "Especialidade",
+    icon: <ClipboardTextIcon size={26} weight="duotone" />,
+    tag: "Comportamental",
+    title: "Nutrição Comportamental",
+    desc: "Compreensão dos fatores emocionais, sensoriais e cognitivos que influenciam sua alimentação. Escuta ativa, acolhimento e suporte em cada etapa da jornada.",
+    accent: false,
   },
 ];
 
-function Services() {
+function Specialties() {
   return (
-    <section
-      id="servicos"
-      style={{ background: "var(--cream)", padding: "6rem 2rem" }}
-    >
-      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "4rem" }}>
-          <Reveal>
-            <p
-              style={{
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "0.75rem",
-                fontWeight: 500,
-                color: "var(--sage-dark)",
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-                marginBottom: "0.75rem",
-              }}
-            >
-              O que ofereço
+    <section id="especialidades" className="bg-[var(--color-alabaster)] py-28 px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-16">
+          <div className="flex flex-col gap-4">
+            <Reveal>
+              <Label>Especialidades</Label>
+            </Reveal>
+            <Reveal delay={100}>
+              <h2
+                className={cn(
+                  "font-[var(--font-display)] font-[400] leading-[1.1] tracking-tight",
+                  "text-[clamp(2.2rem,4vw,3.4rem)] text-[var(--color-charcoal)]"
+                )}
+              >
+                Quatro pilares de{" "}
+                <em className="italic text-[var(--color-sage)]">cuidado</em>
+              </h2>
+            </Reveal>
+          </div>
+          <Reveal delay={200} className="shrink-0">
+            <p className="font-[var(--font-body)] font-[300] text-[0.95rem] leading-[1.8] text-[var(--color-slate-mid)] max-w-[340px]">
+              Uma abordagem integrativa que une a precisão clínica com a
+              sensibilidade humana.
             </p>
+          </Reveal>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-4 auto-rows-fr">
+          {pillars.map((p, i) => {
+            const isFeatured = i === 0;
+            return (
+              <Reveal
+                key={p.title}
+                delay={([undefined, 100, 200, 300] as const)[i]}
+                className={cn(isFeatured && "lg:col-span-2")}
+              >
+                <div
+                  className={cn(
+                    "group relative flex flex-col justify-between gap-6",
+                    "rounded-2xl p-7 h-full border",
+                    "transition-all duration-500 ease-out",
+                    "hover:-translate-y-1 hover:shadow-xl",
+                    isFeatured
+                      ? "bg-[var(--color-charcoal)] border-transparent text-white hover:shadow-black/15"
+                      : "bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-sage-border)] hover:shadow-black/6"
+                  )}
+                >
+                  <div className="flex items-start justify-between">
+                    <div
+                      className={cn(
+                        "w-12 h-12 rounded-xl flex items-center justify-center",
+                        isFeatured
+                          ? "bg-[var(--color-sage)]/20 text-[var(--color-sage-light)]"
+                          : "bg-[var(--color-sage-muted)] text-[var(--color-sage)]"
+                      )}
+                    >
+                      {p.icon}
+                    </div>
+                    <Pill
+                      className={cn(
+                        isFeatured && "bg-white/10 text-white/70"
+                      )}
+                    >
+                      {p.tag}
+                    </Pill>
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    <h3
+                      className={cn(
+                        "font-[var(--font-display)] text-[1.6rem] font-[400] leading-tight tracking-tight",
+                        isFeatured ? "text-white" : "text-[var(--color-charcoal)]"
+                      )}
+                    >
+                      {p.title}
+                    </h3>
+                    <p
+                      className={cn(
+                        "font-[var(--font-body)] font-[300] text-[0.9rem] leading-[1.75]",
+                        isFeatured ? "text-white/65" : "text-[var(--color-slate-mid)]"
+                      )}
+                    >
+                      {p.desc}
+                    </p>
+                  </div>
+
+                  <a
+                    href={WA}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={cn(
+                      "inline-flex items-center gap-1.5 text-[12px] font-[500] tracking-wide w-fit",
+                      "transition-all duration-300",
+                      isFeatured
+                        ? "text-[var(--color-sage-light)] hover:gap-2.5"
+                        : "text-[var(--color-sage)] hover:gap-2.5"
+                    )}
+                  >
+                    Agendar <ArrowUpRightIcon size={12} />
+                  </a>
+                </div>
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const steps = [
+  {
+    num: <NumberCircleOneIcon size={32} weight="fill" color="var(--color-sage)" />,
+    icon: <ClipboardTextIcon size={18} weight="duotone" />,
+    title: "Anamnese Completa",
+    desc: "Uma conversa acolhedora onde entendo sua história, rotina, objetivos, relação com os alimentos e tudo que importa para você.",
+  },
+  {
+    num: <NumberCircleTwoIcon size={32} weight="fill" color="var(--color-sage)" />,
+    icon: <HeartbeatIcon size={18} weight="duotone" />,
+    title: "Avaliação Nutricional",
+    desc: "Análise detalhada do consumo alimentar, exames laboratoriais, estado nutricional e necessidades individuais do seu organismo.",
+  },
+  {
+    num: <NumberCircleThreeIcon size={32} weight="fill" color="var(--color-sage)" />,
+    icon: <CarrotIcon size={18} weight="duotone" />,
+    title: "Plano Personalizado",
+    desc: "Estratégias alimentares flexíveis e práticas, construídas com você — respeitando seu paladar, rotina e objetivos reais.",
+  },
+  {
+    num: <NumberCircleFourIcon size={32} weight="fill" color="var(--color-sage)" />,
+    icon: <CalendarCheckIcon size={18} weight="duotone" />,
+    title: "Acompanhamento Contínuo",
+    desc: "Retornos periódicos para ajustes finos, suporte na jornada e celebração de cada conquista ao longo do caminho.",
+  },
+];
+
+function Methodology() {
+  return (
+    <section id="metodologia" className="bg-[var(--color-canvas)] py-28 px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="max-w-2xl mb-20">
+          <Reveal>
+            <Label>Como Funciona</Label>
           </Reveal>
           <Reveal delay={100}>
             <h2
-              style={{
-                fontFamily: "var(--font-cormorant), serif",
-                fontSize: "clamp(2.2rem, 3.5vw, 3rem)",
-                fontWeight: 400,
-                color: "var(--text-dark)",
-                lineHeight: 1.2,
-              }}
+              className={cn(
+                "mt-4 font-[var(--font-display)] font-[400] leading-[1.1] tracking-tight",
+                "text-[clamp(2.2rem,4vw,3.4rem)] text-[var(--color-charcoal)]"
+              )}
             >
-              Serviços{" "}
-              <em style={{ color: "var(--sage-dark)", fontStyle: "italic" }}>
-                personalizados
-              </em>{" "}
-              para você
+              Um processo{" "}
+              <em className="italic text-[var(--color-sage)]">humanizado</em>
+              <br />e no seu tempo
             </h2>
           </Reveal>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-            gap: "1.5rem",
-          }}
-        >
-          {services.map((s, i) => (
-            <Reveal key={s.title} delay={(i % 4) * 100 as 0 | 100 | 200 | 300 | 400 | 500}>
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: 20,
-                  padding: "2.25rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1rem",
-                  border: "1px solid var(--cream-dark)",
-                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                  cursor: "default",
-                  height: "100%",
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(-6px)";
-                  (e.currentTarget as HTMLElement).style.boxShadow =
-                    "0 12px 40px rgba(0,0,0,0.09)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-                  (e.currentTarget as HTMLElement).style.boxShadow = "none";
-                }}
+        <div className="relative grid lg:grid-cols-2 gap-6">
+          <div className="hidden lg:block absolute left-1/2 top-8 bottom-8 w-px bg-[var(--color-border)] -translate-x-1/2" />
+
+          {steps.map((s, i) => {
+            const isLeft = i % 2 === 0;
+            return (
+              <Reveal
+                key={s.title}
+                direction={isLeft ? "left" : "right"}
+                delay={([undefined, 100, 200, 300] as const)[i]}
+                className={cn(!isLeft && "lg:mt-16")}
               >
                 <div
-                  style={{
-                    width: 52,
-                    height: 52,
-                    borderRadius: 14,
-                    background: "var(--sage-xlight)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+                  className={cn(
+                    "group bg-[var(--color-surface)] rounded-2xl p-7",
+                    "border border-[var(--color-border)]",
+                    "transition-all duration-500 ease-out",
+                    "hover:-translate-y-1 hover:border-[var(--color-sage-border)] hover:shadow-lg hover:shadow-black/5"
+                  )}
                 >
-                  {s.icon}
-                </div>
-                <div>
-                  <span
-                    style={{
-                      display: "inline-block",
-                      fontFamily: "var(--font-dm-sans), sans-serif",
-                      fontSize: "0.65rem",
-                      fontWeight: 500,
-                      color: "var(--sage-dark)",
-                      letterSpacing: "0.12em",
-                      textTransform: "uppercase",
-                      background: "var(--sage-xlight)",
-                      padding: "0.2rem 0.6rem",
-                      borderRadius: "50px",
-                      marginBottom: "0.5rem",
-                    }}
-                  >
-                    {s.tag}
-                  </span>
+                  <div className="flex items-start justify-between mb-5">
+                    {s.num}
+                    <div
+                      className={cn(
+                        "w-9 h-9 rounded-xl flex items-center justify-center",
+                        "bg-[var(--color-sage-muted)] text-[var(--color-sage)]"
+                      )}
+                    >
+                      {s.icon}
+                    </div>
+                  </div>
                   <h3
-                    style={{
-                      fontFamily: "var(--font-cormorant), serif",
-                      fontSize: "1.4rem",
-                      fontWeight: 500,
-                      color: "var(--text-dark)",
-                      lineHeight: 1.2,
-                    }}
+                    className={cn(
+                      "font-[var(--font-display)] text-[1.4rem] font-[400] leading-tight tracking-tight",
+                      "text-[var(--color-charcoal)] mb-3"
+                    )}
                   >
                     {s.title}
                   </h3>
+                  <p className="font-[var(--font-body)] font-[300] text-[0.9rem] leading-[1.75] text-[var(--color-slate-mid)]">
+                    {s.desc}
+                  </p>
                 </div>
-                <p
-                  style={{
-                    fontFamily: "var(--font-dm-sans), sans-serif",
-                    fontSize: "0.9rem",
-                    lineHeight: 1.7,
-                    color: "var(--text-mid)",
-                    fontWeight: 300,
-                    flexGrow: 1,
-                  }}
-                >
+              </Reveal>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Quote() {
+  return (
+    <section className="bg-[var(--color-alabaster)] py-24 px-6">
+      <div className="max-w-3xl mx-auto text-center flex flex-col items-center gap-6">
+        <Reveal>
+          <QuotesIcon size={36} weight="fill" color="var(--color-sage-border)" />
+        </Reveal>
+        <Reveal delay={100}>
+          <blockquote
+            className={cn(
+              "font-[var(--font-display)] italic font-[300] leading-[1.5]",
+              "text-[clamp(1.5rem,3vw,2.2rem)] text-[var(--color-charcoal)]"
+            )}
+          >
+            "Não acredito em dietas restritivas ou soluções milagrosas. Acredito
+            que cada paciente é único e merece um cuidado que respeite, de
+            verdade, a sua história."
+          </blockquote>
+        </Reveal>
+        <Reveal delay={200}>
+          <p className="text-[12px] font-[500] tracking-[0.14em] uppercase text-[var(--color-sage)]">
+            — Yasmin Veras, Nutricionista CRN7 18989
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+function Services() {
+  return (
+    <section className="bg-[var(--color-canvas)] py-20 px-6">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-2 gap-4">
+          {[
+            {
+              icon: <HouseIcon size={22} weight="duotone" />,
+              title: "Consulta Presencial",
+              desc: "60 minutos de avaliação completa: pregas cutâneas, interpretação de exames, investigação clínica e análise metabólica individualizada.",
+              badge: "Presencial",
+            },
+            {
+              icon: <MonitorIcon size={22} weight="duotone" />,
+              title: "Consulta Online",
+              desc: "Toda a entrega da consulta presencial com a flexibilidade de atendimento remoto. Para você, de qualquer lugar do Brasil.",
+              badge: "Online · Todo o Brasil",
+            },
+          ].map((s) => (
+            <Reveal key={s.title}>
+              <div
+                className={cn(
+                  "group bg-[var(--color-surface)] rounded-2xl p-7",
+                  "border border-[var(--color-border)]",
+                  "transition-all duration-500 ease-out",
+                  "hover:-translate-y-1 hover:border-[var(--color-sage-border)] hover:shadow-xl hover:shadow-black/5"
+                )}
+              >
+                <div className="flex items-start justify-between mb-6">
+                  <div className="w-11 h-11 rounded-xl bg-[var(--color-sage-muted)] flex items-center justify-center text-[var(--color-sage)]">
+                    {s.icon}
+                  </div>
+                  <Pill>{s.badge}</Pill>
+                </div>
+                <h3 className="font-[var(--font-display)] text-[1.5rem] font-[400] text-[var(--color-charcoal)] mb-3 leading-tight">
+                  {s.title}
+                </h3>
+                <p className="font-[var(--font-body)] font-[300] text-[0.9rem] leading-[1.75] text-[var(--color-slate-mid)] mb-6">
                   {s.desc}
                 </p>
                 <a
-                  href={WA_LINK}
+                  href={WA}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "0.35rem",
-                    fontFamily: "var(--font-dm-sans), sans-serif",
-                    fontSize: "0.82rem",
-                    fontWeight: 500,
-                    color: "var(--sage-dark)",
-                    textDecoration: "none",
-                    transition: "gap 0.2s",
-                  }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLElement).style.gap = "0.6rem")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLElement).style.gap = "0.35rem")
-                  }
+                  className={cn(
+                    "inline-flex items-center gap-1.5 text-[12px] font-[500] text-[var(--color-sage)]",
+                    "transition-all duration-300 hover:gap-2.5"
+                  )}
                 >
-                  Agendar <ArrowRight size={14} />
+                  Agendar <ArrowUpRightIcon size={12} />
                 </a>
               </div>
             </Reveal>
@@ -1050,249 +888,65 @@ function Services() {
   );
 }
 
-/* ── Methodology ── */
-const steps = [
-  {
-    num: <NumberCircleOne size={40} weight="fill" color="var(--sage)" />,
-    icon: <ClipboardText size={22} weight="duotone" color="var(--sage-dark)" />,
-    title: "Anamnese Completa",
-    desc: "Entendo sua história, rotina, objetivos e relação com os alimentos em uma primeira conversa acolhedora e sem julgamentos.",
-  },
-  {
-    num: <NumberCircleTwo size={40} weight="fill" color="var(--sage)" />,
-    icon: <Carrot size={22} weight="duotone" color="var(--sage-dark)" />,
-    title: "Avaliação Nutricional",
-    desc: "Análise detalhada do consumo alimentar, estado nutricional, exames laboratoriais e necessidades individuais.",
-  },
-  {
-    num: <NumberCircleThree size={40} weight="fill" color="var(--sage)" />,
-    icon: <FileText size={22} weight="duotone" color="var(--sage-dark)" />,
-    title: "Plano Personalizado",
-    desc: "Elaboração de estratégias alimentares flexíveis, práticas e alinhadas aos seus objetivos, estilo de vida e preferências.",
-  },
-  {
-    num: <NumberCircleFour size={40} weight="fill" color="var(--sage)" />,
-    icon: <CalendarCheck size={22} weight="duotone" color="var(--sage-dark)" />,
-    title: "Acompanhamento Contínuo",
-    desc: "Retornos periódicos para ajustes, suporte e celebração das suas conquistas ao longo de toda a jornada.",
-  },
-];
-
-function Methodology() {
+function Cta() {
   return (
-    <section
-      id="metodologia"
-      style={{ background: "var(--cream-dark)", padding: "6rem 2rem" }}
-    >
-      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ textAlign: "center", marginBottom: "4rem" }}>
-          <Reveal>
-            <p
-              style={{
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "0.75rem",
-                fontWeight: 500,
-                color: "var(--sage-dark)",
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-                marginBottom: "0.75rem",
-              }}
-            >
-              Como funciona
-            </p>
-          </Reveal>
-          <Reveal delay={100}>
-            <h2
-              style={{
-                fontFamily: "var(--font-cormorant), serif",
-                fontSize: "clamp(2.2rem, 3.5vw, 3rem)",
-                fontWeight: 400,
-                color: "var(--text-dark)",
-                lineHeight: 1.2,
-              }}
-            >
-              Minha{" "}
-              <em style={{ color: "var(--sage-dark)", fontStyle: "italic" }}>
-                metodologia
-              </em>
-            </h2>
-          </Reveal>
-          <Reveal delay={200}>
-            <p
-              style={{
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "1rem",
-                color: "var(--text-mid)",
-                fontWeight: 300,
-                maxWidth: 520,
-                margin: "1rem auto 0",
-                lineHeight: 1.75,
-              }}
-            >
-              Um acompanhamento humanizado e no seu tempo, que valoriza cada
-              capítulo da sua história.
-            </p>
-          </Reveal>
-        </div>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-            gap: "1.5rem",
-            position: "relative",
-          }}
-        >
-          {steps.map((s, i) => (
-            <Reveal key={s.title} delay={(i * 100) as 0 | 100 | 200 | 300 | 400 | 500}>
-              <div
-                style={{
-                  background: "#fff",
-                  borderRadius: 20,
-                  padding: "2rem",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1rem",
-                  border: "1px solid transparent",
-                  transition: "border-color 0.3s, transform 0.3s, box-shadow 0.3s",
-                  height: "100%",
-                }}
-                onMouseEnter={(e) => {
-                  const el = e.currentTarget as HTMLElement;
-                  el.style.borderColor = "var(--sage-light)";
-                  el.style.transform = "translateY(-4px)";
-                  el.style.boxShadow = "0 8px 32px rgba(0,0,0,0.07)";
-                }}
-                onMouseLeave={(e) => {
-                  const el = e.currentTarget as HTMLElement;
-                  el.style.borderColor = "transparent";
-                  el.style.transform = "translateY(0)";
-                  el.style.boxShadow = "none";
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                  {s.num}
-                  <div
-                    style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: 10,
-                      background: "var(--sage-xlight)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                    }}
-                  >
-                    {s.icon}
-                  </div>
-                </div>
-                <h3
-                  style={{
-                    fontFamily: "var(--font-cormorant), serif",
-                    fontSize: "1.3rem",
-                    fontWeight: 500,
-                    color: "var(--text-dark)",
-                    lineHeight: 1.2,
-                  }}
-                >
-                  {s.title}
-                </h3>
-                <p
-                  style={{
-                    fontFamily: "var(--font-dm-sans), sans-serif",
-                    fontSize: "0.88rem",
-                    lineHeight: 1.7,
-                    color: "var(--text-mid)",
-                    fontWeight: 300,
-                  }}
-                >
-                  {s.desc}
-                </p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
+    <section className="bg-[var(--color-charcoal)] py-28 px-6 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[40vw] h-[40vw] max-w-[500px] max-h-[500px] rounded-full bg-[var(--color-sage)]/10 blur-[80px]" />
+        <div className="absolute bottom-0 left-0 w-[30vw] h-[30vw] max-w-[380px] max-h-[380px] rounded-full bg-[var(--color-sage)]/6 blur-[60px]" />
       </div>
-    </section>
-  );
-}
-
-/* ── CTA Banner ── */
-function CtaBanner() {
-  return (
-    <section
-      style={{
-        background: "var(--sage-dark)",
-        padding: "5rem 2rem",
-        textAlign: "center",
-      }}
-    >
-      <div style={{ maxWidth: 680, margin: "0 auto", display: "flex", flexDirection: "column", gap: "1.5rem", alignItems: "center" }}>
+      <div className="relative max-w-3xl mx-auto text-center flex flex-col items-center gap-7">
         <Reveal>
-          <Leaf size={32} weight="fill" color="rgba(255,255,255,0.5)" />
+          <LeafIcon size={28} weight="fill" color="rgba(143,175,126,0.5)" />
         </Reveal>
         <Reveal delay={100}>
           <h2
-            style={{
-              fontFamily: "var(--font-cormorant), serif",
-              fontSize: "clamp(2rem, 4vw, 3rem)",
-              fontWeight: 400,
-              color: "#fff",
-              lineHeight: 1.2,
-            }}
+            className={cn(
+              "font-[var(--font-display)] font-[400] leading-[1.1] tracking-tight text-white",
+              "text-[clamp(2rem,4vw,3.2rem)]"
+            )}
           >
             Dê o primeiro passo para{" "}
-            <em style={{ fontStyle: "italic" }}>transformar sua saúde</em>
+            <em className="italic text-[var(--color-sage-light)]">
+              transformar sua saúde
+            </em>
           </h2>
         </Reveal>
         <Reveal delay={200}>
-          <p
-            style={{
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontSize: "1rem",
-              color: "rgba(255,255,255,0.8)",
-              fontWeight: 300,
-              lineHeight: 1.75,
-            }}
-          >
-            Agende sua consulta e comece sua jornada rumo a uma vida mais
+          <p className="font-[var(--font-body)] font-[300] text-[1rem] leading-[1.75] text-white/60 max-w-xl">
+            Agende sua consulta e comece uma jornada rumo a uma vida mais
             saudável, equilibrada e prazerosa. Atendimento online para todo o
             Brasil.
           </p>
         </Reveal>
-        <Reveal delay={300}>
+        <Reveal delay={300} className="flex flex-wrap gap-3 justify-center">
           <a
-            href={WA_LINK}
+            href={WA}
             target="_blank"
             rel="noopener noreferrer"
-            className="animate-pulse-ring"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.6rem",
-              background: "#fff",
-              color: "var(--sage-dark)",
-              padding: "1rem 2.25rem",
-              borderRadius: "50px",
-              textDecoration: "none",
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontSize: "0.9rem",
-              fontWeight: 500,
-              letterSpacing: "0.06em",
-              transition: "transform 0.2s, background 0.25s",
-              marginTop: "0.5rem",
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLElement).style.transform = "translateY(-3px)";
-              (e.currentTarget as HTMLElement).style.background = "var(--cream)";
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLElement).style.transform = "translateY(0)";
-              (e.currentTarget as HTMLElement).style.background = "#fff";
-            }}
+            className={cn(
+              "inline-flex items-center gap-2 px-7 py-4 rounded-full",
+              "text-[13px] font-[500] tracking-wide bg-white text-[var(--color-charcoal)]",
+              "transition-all duration-300 hover:bg-[var(--color-sage-muted)] hover:-translate-y-0.5",
+              "animate-pulse-glow"
+            )}
           >
-            <ChatCircleDots size={20} weight="fill" />
+            <ChatCircleDotsIcon size={16} weight="fill" color="var(--color-sage)" />
             Agendar pelo WhatsApp
+          </a>
+          <a
+            href={IG}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "inline-flex items-center gap-2 px-7 py-4 rounded-full",
+              "text-[13px] font-[400] tracking-wide text-white/70",
+              "border border-white/15",
+              "transition-all duration-300 hover:border-white/30 hover:text-white"
+            )}
+          >
+            <InstagramLogoIcon size={15} />
+            @nutriyasminveras
           </a>
         </Reveal>
       </div>
@@ -1300,346 +954,78 @@ function CtaBanner() {
   );
 }
 
-/* ── Quote / Testimonial ── */
-function Quote() {
-  return (
-    <section
-      style={{
-        background: "var(--cream)",
-        padding: "5rem 2rem",
-        textAlign: "center",
-      }}
-    >
-      <div style={{ maxWidth: 720, margin: "0 auto" }}>
-        <Reveal>
-          <Quotes size={40} weight="fill" color="var(--sage-light)" />
-        </Reveal>
-        <Reveal delay={100}>
-          <blockquote
-            style={{
-              fontFamily: "var(--font-cormorant), serif",
-              fontSize: "clamp(1.5rem, 3vw, 2.2rem)",
-              fontWeight: 300,
-              fontStyle: "italic",
-              color: "var(--text-dark)",
-              lineHeight: 1.5,
-              margin: "1.25rem 0",
-            }}
-          >
-            "Não acredito em dietas restritivas ou gomas milagrosas. Acredito
-            que cada paciente é diferente e merece um cuidado que respeite a sua
-            história."
-          </blockquote>
-        </Reveal>
-        <Reveal delay={200}>
-          <p
-            style={{
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontSize: "0.82rem",
-              color: "var(--sage-dark)",
-              fontWeight: 500,
-              letterSpacing: "0.1em",
-              textTransform: "uppercase",
-            }}
-          >
-            — Yasmin Veras, Nutricionista CRN7 18989
-          </p>
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-/* ── Footer ── */
 function Footer() {
   const year = new Date().getFullYear();
-
   return (
-    <footer
-      id="contato"
-      style={{
-        background: "var(--text-dark)",
-        color: "rgba(255,255,255,0.75)",
-        padding: "4rem 2rem 2.5rem",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "0 auto",
-          display: "grid",
-          gridTemplateColumns: "1.5fr 1fr 1fr",
-          gap: "3rem",
-          paddingBottom: "2.5rem",
-          borderBottom: "1px solid rgba(255,255,255,0.1)",
-        }}
-        className="footer-grid"
-      >
-        {/* Brand */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <span
-            style={{
-              fontFamily: "var(--font-cormorant), serif",
-              fontSize: "1.6rem",
-              fontWeight: 500,
-              color: "#fff",
-            }}
-          >
-            Yasmin{" "}
-            <em style={{ color: "var(--sage-light)", fontStyle: "italic" }}>
-              Veras
-            </em>
-          </span>
-          <p
-            style={{
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontSize: "0.88rem",
-              lineHeight: 1.7,
-              fontWeight: 300,
-              maxWidth: 300,
-            }}
-          >
-            Nutricionista clínica comprometida com seu bem-estar e saúde de
-            forma individualizada, humanizada e baseada em evidências.
-          </p>
-          <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
-            <a
-              href={IG_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: "50%",
-                border: "1px solid rgba(255,255,255,0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "rgba(255,255,255,0.75)",
-                textDecoration: "none",
-                transition: "border-color 0.25s, color 0.25s",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--sage-light)";
-                (e.currentTarget as HTMLElement).style.color = "var(--sage-light)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.2)";
-                (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.75)";
-              }}
-              aria-label="Instagram"
-            >
-              <InstagramLogo size={18} />
-            </a>
-            <a
-              href={WA_LINK}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{
-                width: 38,
-                height: 38,
-                borderRadius: "50%",
-                border: "1px solid rgba(255,255,255,0.2)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "rgba(255,255,255,0.75)",
-                textDecoration: "none",
-                transition: "border-color 0.25s, color 0.25s",
-              }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = "var(--sage-light)";
-                (e.currentTarget as HTMLElement).style.color = "var(--sage-light)";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = "rgba(255,255,255,0.2)";
-                (e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.75)";
-              }}
-              aria-label="WhatsApp"
-            >
-              <ChatCircleDots size={18} />
-            </a>
-          </div>
-        </div>
+    <footer id="contato" className="bg-[var(--color-charcoal)] border-t border-white/8 px-6 py-10">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+        <span className="font-[var(--font-display)] text-[1.2rem] font-[400] text-white/80">
+          Yasmin{" "}
+          <em className="not-italic text-[var(--color-sage-light)] font-[300]">Veras</em>
+        </span>
 
-        {/* Navigation */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-          <p
-            style={{
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontSize: "0.72rem",
-              fontWeight: 500,
-              color: "rgba(255,255,255,0.4)",
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              marginBottom: "0.75rem",
-            }}
-          >
-            Navegação
-          </p>
+        <div className="flex flex-wrap items-center justify-center gap-6">
           {[
-            { href: "#sobre", label: "Sobre Mim" },
-            { href: "#servicos", label: "Serviços" },
+            { href: "#sobre", label: "Sobre" },
+            { href: "#especialidades", label: "Especialidades" },
             { href: "#metodologia", label: "Metodologia" },
-            { href: IG_LINK, label: "@nutriyasminveras", external: true },
           ].map((l) => (
             <a
-              key={l.label}
+              key={l.href}
               href={l.href}
-              target={l.external ? "_blank" : undefined}
-              rel={l.external ? "noopener noreferrer" : undefined}
-              style={{
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "0.88rem",
-                color: "rgba(255,255,255,0.65)",
-                textDecoration: "none",
-                fontWeight: 300,
-                transition: "color 0.2s",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.35rem",
-              }}
-              onMouseEnter={(e) =>
-                ((e.currentTarget as HTMLElement).style.color = "var(--sage-light)")
-              }
-              onMouseLeave={(e) =>
-                ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.65)")
-              }
+              className="text-[12px] tracking-wide text-white/40 hover:text-white/70 transition-colors"
             >
-              {l.external && <InstagramLogo size={13} />}
               {l.label}
             </a>
           ))}
         </div>
 
-        {/* Contact */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <p
-            style={{
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontSize: "0.72rem",
-              fontWeight: 500,
-              color: "rgba(255,255,255,0.4)",
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              marginBottom: "0.25rem",
-            }}
-          >
-            Contato
-          </p>
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5 text-[12px] text-white/40">
+            <MapPinIcon size={12} color="var(--color-sage-light)" />
+            Rio Branco, AC
+          </span>
           <a
-            href={WA_LINK}
+            href={IG}
             target="_blank"
             rel="noopener noreferrer"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.6rem",
-              background: "var(--sage-dark)",
-              color: "#fff",
-              padding: "0.8rem 1.5rem",
-              borderRadius: "50px",
-              textDecoration: "none",
-              fontFamily: "var(--font-dm-sans), sans-serif",
-              fontSize: "0.82rem",
-              fontWeight: 500,
-              letterSpacing: "0.04em",
-              width: "fit-content",
-              transition: "background 0.25s",
-            }}
-            onMouseEnter={(e) =>
-              ((e.currentTarget as HTMLElement).style.background = "var(--sage)")
-            }
-            onMouseLeave={(e) =>
-              ((e.currentTarget as HTMLElement).style.background = "var(--sage-dark)")
-            }
+            className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-white/40 hover:text-white/70 hover:border-white/30 transition-all"
+            aria-label="Instagram"
           >
-            <ChatCircleDots size={16} weight="fill" />
-            Agendar Consulta
+            <InstagramLogoIcon size={14} />
           </a>
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.5rem",
-              marginTop: "0.25rem",
-            }}
+          <a
+            href={WA}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-white/40 hover:text-white/70 hover:border-white/30 transition-all"
+            aria-label="WhatsApp"
           >
-            <span
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                fontFamily: "var(--font-dm-sans), sans-serif",
-                fontSize: "0.85rem",
-                fontWeight: 300,
-                color: "rgba(255,255,255,0.6)",
-              }}
-            >
-              <MapPin size={14} color="var(--sage-light)" />
-              Rio Branco, Acre — Online para todo o Brasil
-            </span>
-          </div>
+            <ChatCircleDotsIcon size={14} />
+          </a>
         </div>
       </div>
-
-      {/* Bottom bar */}
-      <div
-        style={{
-          maxWidth: 1200,
-          margin: "2rem auto 0",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "1rem",
-        }}
-      >
-        <p
-          style={{
-            fontFamily: "var(--font-dm-sans), sans-serif",
-            fontSize: "0.78rem",
-            color: "rgba(255,255,255,0.35)",
-            fontWeight: 300,
-          }}
-        >
+      <div className="max-w-6xl mx-auto mt-8 pt-6 border-t border-white/6 flex flex-col md:flex-row items-center justify-between gap-2">
+        <p className="text-[11px] text-white/25">
           © {year} Yasmin Veras · Todos os direitos reservados
         </p>
-        <p
-          style={{
-            fontFamily: "var(--font-dm-sans), sans-serif",
-            fontSize: "0.78rem",
-            color: "rgba(255,255,255,0.35)",
-            fontWeight: 300,
-          }}
-        >
-          CRN7 18989 · Nutricionista Clínica
-        </p>
+        <p className="text-[11px] text-white/25">CRN7 18989 · Nutricionista Clínica</p>
       </div>
-
-      <style>{`
-        @media (max-width: 768px) {
-          .footer-grid {
-            grid-template-columns: 1fr !important;
-            gap: 2rem !important;
-          }
-        }
-      `}</style>
     </footer>
   );
 }
 
-/* ── Page ── */
 export default function Page() {
   return (
     <main>
-      <Header />
+      <Nav />
       <Hero />
       <About />
-      <Services />
+      <Specialties />
       <Quote />
       <Methodology />
-      <CtaBanner />
+      <Services />
+      <Cta />
       <Footer />
     </main>
   );
