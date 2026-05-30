@@ -49,7 +49,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const WA = "https://wa.me/5568992025316";
+const WA = "https://wa.me/5568992025316?text=Olá%20Yasmin!%20Gostaria%20de%20agendar%20uma%20consulta.";
 const IG = "https://www.instagram.com/nutriyasminveras/";
 
 function useReveal() {
@@ -1049,7 +1049,7 @@ function Footer() {
         </div>
       </div>
 
-      <Separator className="max-w-6xl mx-auto mt-8 mb-6 bg-[#2E5238]/50" />
+      <Separator className="max-w-6xl mx-auto mt-8 mb-6 bg-white/8" />
 
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
         <p className="text-[11px] text-white/25 flex items-center gap-1.5">
