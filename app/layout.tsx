@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Sans, JetBrains_Mono } from "next/font/google";
+import { Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-
-const jetbrainsMono = JetBrains_Mono({subsets:['latin'],variable:'--font-mono'});
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -32,9 +31,11 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={cn(cormorant.variable, dmSans.variable, "font-mono", jetbrainsMono.variable)}
+      className={cn(cormorant.variable, dmSans.variable)}
     >
-      <body className="min-h-screen">{children}</body>
+      <body className="min-h-screen">
+        <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }
