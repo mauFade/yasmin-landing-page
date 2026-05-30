@@ -646,7 +646,7 @@ function Specialties() {
                   "rounded-2xl ring-0 border h-full gap-0 py-0",
                   "transition-all duration-500 ease-out hover:-translate-y-1 hover:shadow-xl",
                   p.featured
-                    ? "bg-(--color-charcoal) border-transparent hover:shadow-black/20"
+                    ? "bg-linear-to-br from-[#243E2A] to-[#152419] border-[#2E5238] hover:shadow-[#152419]/40"
                     : "bg-(--color-surface) border-(--color-border) hover:border-(--color-sage-border) hover:shadow-black/6"
                 )}
               >
@@ -656,7 +656,7 @@ function Specialties() {
                       className={cn(
                         "w-12 h-12 rounded-xl flex items-center justify-center",
                         p.featured
-                          ? "bg-sage/20 text-(--color-sage-light)"
+                          ? "bg-white/10 text-[#A8D4A0]"
                           : "bg-(--color-sage-muted) text-(--color-sage)"
                       )}
                     >
@@ -666,7 +666,7 @@ function Specialties() {
                       className={cn(
                         "rounded-full h-auto px-2.5 py-0.5 text-[10px] font-medium tracking-wide border-transparent",
                         p.featured
-                          ? "bg-white/10 text-white/70"
+                          ? "bg-white/10 text-white/60"
                           : "bg-(--color-sage-muted) text-(--color-sage)"
                       )}
                     >
@@ -687,7 +687,7 @@ function Specialties() {
                   <p
                     className={cn(
                       "font-(--font-body) text-[0.9rem] leading-[1.75]",
-                      p.featured ? "text-white/65" : "text-(--color-slate-mid)"
+                      p.featured ? "text-white/60" : "text-(--color-slate-mid)"
                     )}
                   >
                     {p.desc}
@@ -695,10 +695,7 @@ function Specialties() {
                 </CardContent>
 
                 <CardFooter
-                  className={cn(
-                    "px-7 pb-7 pt-5 border-t-0",
-                    p.featured ? "border-transparent" : "border-transparent"
-                  )}
+                  className="px-7 pb-7 pt-5 border-t-0 border-transparent"
                 >
                   <a
                     href={WA}
@@ -708,7 +705,7 @@ function Specialties() {
                       "inline-flex items-center gap-1.5 text-[12px] font-medium tracking-wide",
                       "transition-all duration-300 hover:gap-2.5",
                       p.featured
-                        ? "text-(--color-sage-light)"
+                        ? "text-[#A8D4A0] hover:text-white"
                         : "text-(--color-sage)"
                     )}
                   >
@@ -927,10 +924,10 @@ function Services() {
 
 function Cta() {
   return (
-    <section className="bg-(--color-charcoal) py-28 px-6 relative overflow-hidden">
+    <section className="bg-linear-to-br from-[#243E2A] to-[#152419] py-28 px-6 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 right-0 w-[40vw] h-[40vw] max-w-125 max-h-125 rounded-full bg-sage/10 blur-[80px]" />
-        <div className="absolute bottom-0 left-0 w-[30vw] h-[30vw] max-w-95 max-h-95 rounded-full bg-sage/6 blur-[60px]" />
+        <div className="absolute top-0 right-0 w-[40vw] h-[40vw] max-w-125 max-h-125 rounded-full bg-white/5 blur-[80px]" />
+        <div className="absolute bottom-0 left-0 w-[30vw] h-[30vw] max-w-95 max-h-95 rounded-full bg-[#A8D4A0]/8 blur-[60px]" />
       </div>
       <div className="relative max-w-3xl mx-auto text-center flex flex-col items-center gap-7">
         <Reveal>
@@ -944,13 +941,13 @@ function Cta() {
             )}
           >
             Dê o primeiro passo para{" "}
-            <em className="italic text-(--color-sage-light)">
+            <em className="italic text-[#A8D4A0]">
               transformar sua saúde
             </em>
           </h2>
         </Reveal>
         <Reveal delay={200}>
-          <p className="font-light text-[1rem] leading-[1.75] text-white/60 max-w-xl">
+          <p className="font-light text-[1rem] leading-[1.75] text-white/55 max-w-xl">
             Agende sua consulta e comece uma jornada rumo a uma vida mais
             saudável, equilibrada e prazerosa. Atendimento online para todo o
             Brasil.
@@ -996,7 +993,7 @@ function Footer() {
   return (
     <footer
       id="contato"
-      className="bg-(--color-charcoal) border-t border-white/8 px-6 pt-12 pb-8"
+      className="bg-[#152419] border-t border-[#2E5238]/50 px-6 pt-12 pb-8"
     >
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
         <div className="flex flex-col gap-3">
@@ -1052,7 +1049,7 @@ function Footer() {
         </div>
       </div>
 
-      <Separator className="max-w-6xl mx-auto mt-8 mb-6 bg-white/8" />
+      <Separator className="max-w-6xl mx-auto mt-8 mb-6 bg-[#2E5238]/50" />
 
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
         <p className="text-[11px] text-white/25 flex items-center gap-1.5">
